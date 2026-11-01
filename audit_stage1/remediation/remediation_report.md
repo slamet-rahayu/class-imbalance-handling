@@ -64,6 +64,7 @@ See `test_results.txt`, `smoke_comparison.json`, and `remediation_checks.json`.
 - Official UCI provenance, DOI `10.24432/C5F88Q`, CC BY 4.0, and local checksum.
 - Runtime dataset provenance file in every new experiment output.
 - Project version and source manifest.
+- Git source snapshot `f333c3caf10add20e66b4c164b2b6116b7c7b40d`.
 - Training/scenario metadata sufficient to audit ROS, class weighting, convergence,
   oracle prior provenance, and sample identity.
 

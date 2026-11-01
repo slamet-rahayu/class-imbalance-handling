@@ -44,6 +44,8 @@
 - Added local dataset SHA-256 and runtime `dataset_provenance.json`.
 - Added exact `requirements-lock.txt`.
 - Added project version and source/hash manifest.
+- Initialized local version control and committed source snapshot
+  `f333c3caf10add20e66b4c164b2b6116b7c7b40d`.
 - Original local download date remains explicitly `not_recorded`.
 
 ## Historical preservation

@@ -8,7 +8,7 @@
     {"id":"P3","status":"PASS","evidence":["prior_correct input validation","test_p3_prior_validation","test_p3_synthetic_known_label_shift"],"result":"NaN, Inf, out-of-range probabilities and invalid priors are rejected; known label-shift fixture passes."},
     {"id":"P4","status":"PASS","evidence":["training_metadata.csv","leakage_audit.csv","all_repetitions.csv"],"result":"Class counts, ROS distribution, class weights, convergence, scenario counts and hashes are persisted."},
     {"id":"P5","status":"PASS","evidence":["average_precision field","pr_auc compatibility alias","STATISTICAL_ANALYSIS_PLAN.md","audit_and_paired_analysis.py"],"result":"Correct metric name is primary and analysis automatically excludes exploratory paths on remediated output."},
-    {"id":"P6","status":"PASS","evidence":["DATASET_PROVENANCE.md","dataset_provenance.json","requirements-lock.txt","source_manifest.json"],"result":"Official UCI provenance, exact environment pins, project version and source hashes are recorded."},
+    {"id":"P6","status":"PASS","evidence":["DATASET_PROVENANCE.md","dataset_provenance.json","requirements-lock.txt","source_manifest.json","git:f333c3caf10add20e66b4c164b2b6116b7c7b40d"],"result":"Official UCI provenance, exact environment pins, project version, source hashes, and a version-control snapshot are recorded."},
     {"id":"historical_immutability","status":"PASS","evidence":["smoke_comparison.json"],"result":"Historical output hash unchanged and common output values reproduce exactly."}
   ],
   "remaining_noncritical_items": [

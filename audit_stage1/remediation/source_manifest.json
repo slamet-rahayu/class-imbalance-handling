@@ -1,5 +1,6 @@
 {
   "project_version": "stage1-remediation-v1",
+  "source_snapshot_git_commit": "f333c3caf10add20e66b4c164b2b6116b7c7b40d",
   "created_on": "2026-11-01",
   "files": {
     "run_experiment.py": "d4bce291c761dbf8c035507f09048d457563355a5883a81e9263bc90b8004d3e",
