@@ -16,48 +16,54 @@ from protocol_validation import (
     validate_confirmatory_results,
     validate_frozen_protocol,
     validate_runtime_config,
+    validate_source_commit,
 )
 from run_experiment import Config, run
 
 
 ROOT = Path(__file__).resolve().parents[3]
-PROTOCOL = json.loads((ROOT / "confirmatory_protocol.json").read_text())
+PROTOCOL = json.loads((ROOT / "confirmatory_protocol_v2.json").read_text())
+EFFECTIVE = PROTOCOL["effective_config"]
 
 
 def valid_runtime():
-    return {
-        "dataset": PROTOCOL["dataset"],
-        "seeds": PROTOCOL["seeds"],
-        "prevalences": PROTOCOL["prevalences"],
-        "test_size": PROTOCOL["test_size"],
-        "calibration_size": PROTOCOL["calibration_size"],
-        "n_bins": PROTOCOL["n_bins"],
-    }
+    return copy.deepcopy(EFFECTIVE)
 
 
 def synthetic_results():
     rows = []
-    for strategy in PROTOCOL["imbalance_strategies"]:
-        for prevalence in PROTOCOL["primary_prevalences"]:
-            for seed in PROTOCOL["seeds"]:
+    for strategy in EFFECTIVE["imbalance_strategies"]:
+        for prevalence in EFFECTIVE["primary_prevalences"]:
+            for seed in EFFECTIVE["seeds"]:
                 sample_hash = f"{strategy}-{prevalence}-{seed}"
+                base = {
+                        "seed": seed, "imbalance_strategy": strategy,
+                        "calibration": "platt", "target_prevalence": prevalence,
+                        "sample_id_sha256": sample_hash,
+                        "confirmatory_analysis": True,
+                        "source_prior_basis": "natural_calibration_set",
+                        "project_version": "stage1-remediation-v1",
+                        "n_test": 100, "n_positive": int(prevalence * 100),
+                        "n_negative": 100 - int(prevalence * 100),
+                        "brier_score": 0.10, "log_loss": 0.30,
+                        "average_precision": 0.60, "pr_auc": 0.60,
+                        "f1": 0.50, "ece": 0.05,
+                        "mean_predicted_probability": prevalence,
+                        "actual_prevalence": prevalence,
+                        "source_prevalence": 0.155,
+                }
                 rows.extend([
                     {
-                        "seed": seed, "imbalance_strategy": strategy,
-                        "calibration": "platt", "target_prevalence": prevalence,
-                        "prior_correction": False, "sample_id_sha256": sample_hash,
+                        **base, "prior_correction": False,
                         "evaluation_path": "reference_no_correction",
-                        "confirmatory_analysis": True,
-                        "target_prior_source": "oracle_simulator",
-                        "brier_score": 0.10,
+                        "target_prior_source": "not_applied",
+                        "prior_correction_validity": "not_applied",
                     },
                     {
-                        "seed": seed, "imbalance_strategy": strategy,
-                        "calibration": "platt", "target_prevalence": prevalence,
-                        "prior_correction": True, "sample_id_sha256": sample_hash,
+                        **base, "prior_correction": True,
                         "evaluation_path": "primary_prior_correction",
-                        "confirmatory_analysis": True,
                         "target_prior_source": "oracle_simulator",
+                        "prior_correction_validity": "calibrated_confirmatory",
                         "brier_score": 0.09,
                     },
                 ])
@@ -73,13 +79,13 @@ class ProtocolValidationTests(unittest.TestCase):
 
     def test_full_freeze_manifest_is_accepted(self):
         result = validate_frozen_protocol(
-            ROOT / "confirmatory_protocol_freeze.json", valid_runtime()
+            ROOT / "confirmatory_protocol_freeze_v2.json", valid_runtime()
         )
         self.assertEqual(result["status"], "PASS")
 
     def test_every_runtime_deviation_is_rejected(self):
         mutations = {
-            "seed_schedule": ("seeds", PROTOCOL["seeds"][:-1]),
+            "seed_schedule": ("seeds", EFFECTIVE["seeds"][:-1]),
             "prevalence": ("prevalences", [0.10, 0.20, 0.25]),
             "test_size": ("test_size", 0.25),
             "calibration_size": ("calibration_size", 0.15),
@@ -105,7 +111,7 @@ class ProtocolValidationTests(unittest.TestCase):
                 tuple(range(42, 71)),  # seed 71 deliberately missing
                 10,
                 True,
-                ROOT / "confirmatory_protocol_freeze.json",
+                ROOT / "confirmatory_protocol_freeze_v2.json",
             )
             with self.assertRaises(ProtocolValidationError):
                 run(cfg)
@@ -123,6 +129,33 @@ class ProtocolValidationTests(unittest.TestCase):
     def test_nonfinite_primary_metric_is_rejected(self):
         data = synthetic_results()
         data.loc[0, "brier_score"] = np.nan
+        with self.assertRaises(ProtocolValidationError):
+            validate_confirmatory_results(data, PROTOCOL)
+
+    def test_nonfinite_secondary_metric_is_rejected(self):
+        data = synthetic_results()
+        data.loc[0, "log_loss"] = np.inf
+        with self.assertRaises(ProtocolValidationError):
+            validate_confirmatory_results(data, PROTOCOL)
+
+    def test_modified_model_parameter_is_rejected(self):
+        runtime = valid_runtime()
+        runtime["model"]["C"] = 0.5
+        with self.assertRaises(ProtocolValidationError):
+            validate_runtime_config(runtime, PROTOCOL)
+
+    def test_mismatched_git_head_is_rejected(self):
+        with self.assertRaises(ProtocolValidationError):
+            validate_source_commit(ROOT, "0" * 40)
+
+    def test_incorrect_evaluation_path_is_rejected(self):
+        data = synthetic_results()
+        data.loc[data.prior_correction.idxmax(), "evaluation_path"] = "reference_no_correction"
+        with self.assertRaises(ProtocolValidationError):
+            validate_confirmatory_results(data, PROTOCOL)
+
+    def test_missing_required_metadata_is_rejected(self):
+        data = synthetic_results().drop(columns=["source_prior_basis"])
         with self.assertRaises(ProtocolValidationError):
             validate_confirmatory_results(data, PROTOCOL)
 

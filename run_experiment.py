@@ -35,6 +35,29 @@ IMBALANCE_STRATEGIES = ("baseline", "oversampling", "class_weight")
 CALIBRATION_METHODS = ("raw", "platt")
 EPS = 1e-12
 PROJECT_VERSION = "stage1-remediation-v1"
+MODEL_CONFIG = {
+    "solver": "liblinear",
+    "max_iter": 2000,
+    "penalty": "l2",
+    "C": 1.0,
+}
+PLATT_CONFIG = {
+    "solver": "lbfgs",
+    "max_iter": 100,
+    "penalty": "l2",
+    "C": 1.0,
+    "random_state": 0,
+}
+PRIMARY_TEST_CONFIG = {
+    "name": "paired_wilcoxon_signed_rank",
+    "alternative": "two-sided",
+    "zero_method": "pratt",
+    "method": "approx",
+    "continuity_correction": False,
+    "multiplicity": "holm",
+    "alpha": 0.05,
+    "family_size": 6,
+}
 DATASET_PROVENANCE = {
     "repository": "UCI Machine Learning Repository",
     "dataset_id": 468,
@@ -157,9 +180,8 @@ def fit_model(X_train, y_train, strategy: str, seed: int) -> tuple[Pipeline, dic
 
     model = LogisticRegression(
         class_weight=class_weight,
-        max_iter=2000,
-        solver="liblinear",
         random_state=seed,
+        **MODEL_CONFIG,
     )
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always", ConvergenceWarning)
@@ -199,7 +221,7 @@ def fit_model(X_train, y_train, strategy: str, seed: int) -> tuple[Pipeline, dic
 
 def fit_platt_scaler(probabilities: np.ndarray, y_cal: pd.Series) -> LogisticRegression:
     logits = np.log(np.clip(probabilities, EPS, 1 - EPS) / np.clip(1 - probabilities, EPS, 1))
-    calibrator = LogisticRegression(solver="lbfgs", random_state=0)
+    calibrator = LogisticRegression(**PLATT_CONFIG)
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always", ConvergenceWarning)
         calibrator.fit(logits.reshape(-1, 1), y_cal)
@@ -444,6 +466,7 @@ def run_repetition(cfg: Config, seed: int, output: Path) -> tuple[pd.DataFrame, 
                         evaluation_path = "reference_no_correction"
                         correction_validity = "not_applied"
                         confirmatory = True
+                    target_prior_source = "oracle_simulator" if correction else "not_applied"
                     scenario = scenario_metadata[target_prior]
                     record = {
                         "project_version": PROJECT_VERSION,
@@ -456,7 +479,7 @@ def run_repetition(cfg: Config, seed: int, output: Path) -> tuple[pd.DataFrame, 
                         "n_test": len(indices),
                         "source_prevalence": source_prior,
                         "source_prior_basis": "natural_calibration_set",
-                        "target_prior_source": "oracle_simulator",
+                        "target_prior_source": target_prior_source,
                         "evaluation_path": evaluation_path,
                         "prior_correction_validity": correction_validity,
                         "confirmatory_analysis": confirmatory,
@@ -505,13 +528,76 @@ def aggregate_results(results: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
+def effective_runtime_config(cfg: Config) -> dict:
+    """All effective scientific and statistical settings used by a run."""
+    return {
+        "dataset": Path(cfg.data).name,
+        "target": TARGET,
+        "seeds": list(cfg.seeds),
+        "prevalences": list(cfg.prevalences),
+        "control_prevalence": 0.155,
+        "primary_prevalences": [0.10, 0.25],
+        "test_size": cfg.test_size,
+        "calibration_size": cfg.calibration_size,
+        "n_bins": cfg.n_bins,
+        "imbalance_strategies": list(IMBALANCE_STRATEGIES),
+        "calibration_methods": list(CALIBRATION_METHODS),
+        "primary_evaluation_path": "primary_prior_correction",
+        "excluded_evaluation_path": "naive_exploratory",
+        "corrected_target_prior_source": "oracle_simulator",
+        "uncorrected_target_prior_source": "not_applied",
+        "source_prior_basis": "natural_calibration_set",
+        "primary_metric": "brier_score",
+        "secondary_metrics": ["log_loss", "ece"],
+        "descriptive_metrics": ["average_precision", "f1"],
+        "compatibility_metric_aliases": {"pr_auc": "average_precision"},
+        "metric_settings": {
+            "f1_threshold": 0.5,
+            "f1_zero_division": 0,
+            "ece_binning": "equal_width",
+            "ece_n_bins": cfg.n_bins,
+            "average_precision_implementation": "sklearn.metrics.average_precision_score",
+        },
+        "model": {"type": "LogisticRegression", **MODEL_CONFIG, "random_state": "seed"},
+        "platt": {"type": "LogisticRegression", **PLATT_CONFIG, "input": "logit_clipped_probability"},
+        "oversampling": {
+            "type": "RandomOverSampler",
+            "scope": "training_only",
+            "sampling_strategy": "auto",
+            "random_state": "seed",
+            "position": "after_preprocessing",
+        },
+        "class_weighting": {"value": "balanced", "scope": "model_only"},
+        "preprocessing": {
+            "numeric": "StandardScaler",
+            "categorical": "OneHotEncoder",
+            "handle_unknown": "ignore",
+            "fit_scope": "training_only",
+        },
+        "primary_test": PRIMARY_TEST_CONFIG,
+        "pair_keys": ["seed", "imbalance_strategy", "target_prevalence", "sample_id_sha256"],
+        "difference_direction": "corrected_minus_uncorrected",
+        "metric_ranges": {
+            "brier_score": [0.0, 1.0],
+            "log_loss": [0.0, None],
+            "average_precision": [0.0, 1.0],
+            "pr_auc": [0.0, 1.0],
+            "f1": [0.0, 1.0],
+            "ece": [0.0, 1.0],
+            "mean_predicted_probability": [0.0, 1.0],
+            "actual_prevalence": [0.0, 1.0],
+            "source_prevalence": [0.0, 1.0],
+        },
+    }
+
+
 def run(cfg: Config) -> pd.DataFrame:
     if cfg.confirmatory:
-        from protocol_validation import runtime_config_from_experiment, validate_frozen_protocol
+        from protocol_validation import validate_frozen_protocol
 
         validate_frozen_protocol(
             cfg.protocol_manifest,
-            runtime_config_from_experiment(cfg),
+            effective_runtime_config(cfg),
         )
     cfg.output.mkdir(parents=True, exist_ok=True)
     all_results, all_audits, all_training = [], [], []

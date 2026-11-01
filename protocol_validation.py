@@ -39,19 +39,14 @@ def load_json(path: Path) -> dict:
 
 
 def runtime_config_from_experiment(cfg) -> dict:
-    """Return the runtime-controlled subset that must exactly match the freeze."""
-    return {
-        "dataset": Path(cfg.data).name,
-        "seeds": list(cfg.seeds),
-        "prevalences": list(cfg.prevalences),
-        "test_size": cfg.test_size,
-        "calibration_size": cfg.calibration_size,
-        "n_bins": cfg.n_bins,
-    }
+    """Return every effective scientific/statistical setting used by the code."""
+    from run_experiment import effective_runtime_config
+
+    return effective_runtime_config(cfg)
 
 
 def validate_runtime_config(runtime: dict, protocol: dict) -> None:
-    expected = {key: protocol[key] for key in runtime}
+    expected = protocol.get("effective_config", protocol)
     if canonical_json_hash(runtime) != canonical_json_hash(expected):
         differences = {
             key: {"expected": expected.get(key), "observed": runtime.get(key)}
@@ -73,13 +68,18 @@ def installed_dependency_versions(names: list[str]) -> dict[str, str]:
 
 def validate_source_commit(repo_root: Path, source_commit: str) -> None:
     result = subprocess.run(
-        ["git", "cat-file", "-e", f"{source_commit}^{{commit}}"],
+        ["git", "rev-parse", "HEAD"],
         cwd=repo_root,
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
-        raise ProtocolValidationError(f"Source commit freeze tidak ditemukan: {source_commit}")
+        raise ProtocolValidationError("Git HEAD tidak dapat dibaca")
+    active_head = result.stdout.strip()
+    if active_head != source_commit:
+        raise ProtocolValidationError(
+            f"Git HEAD berbeda dari freeze: expected={source_commit}, observed={active_head}"
+        )
 
 
 def validate_frozen_protocol(manifest_path: Path, runtime: dict) -> dict:
@@ -127,24 +127,68 @@ def validate_frozen_protocol(manifest_path: Path, runtime: dict) -> dict:
 
 def validate_confirmatory_results(results: pd.DataFrame, protocol: dict) -> dict:
     """Fail closed on non-finite metrics, incomplete pairs, hashes, or bad labels."""
+    effective = protocol.get("effective_config", protocol)
     required = {
         "seed", "imbalance_strategy", "calibration", "target_prevalence",
         "prior_correction", "sample_id_sha256", "evaluation_path",
-        "confirmatory_analysis", "target_prior_source", "brier_score",
+        "confirmatory_analysis", "target_prior_source", "source_prior_basis",
+        "prior_correction_validity", "project_version", "n_test", "n_positive",
+        "n_negative", *effective["metric_ranges"].keys(),
     }
     missing = sorted(required - set(results.columns))
     if missing:
         raise ProtocolValidationError(f"Kolom hasil konfirmatori hilang: {missing}")
-    if ((results.evaluation_path == protocol["excluded_evaluation_path"])
+    numeric_columns = list(effective["metric_ranges"])
+    if not np.isfinite(results[numeric_columns].to_numpy(dtype=float)).all():
+        raise ProtocolValidationError("Satu atau lebih metrik numerik non-finite")
+    for metric, (lower, upper) in effective["metric_ranges"].items():
+        values = results[metric].to_numpy(dtype=float)
+        if np.any(values < lower) or (upper is not None and np.any(values > upper)):
+            raise ProtocolValidationError(f"Metrik di luar rentang: {metric}")
+    if not np.allclose(results["average_precision"], results["pr_auc"], rtol=0, atol=1e-15):
+        raise ProtocolValidationError("Alias pr_auc tidak identik dengan average_precision")
+    if (results.n_test <= 0).any() or (results.n_positive < 0).any() or (results.n_negative < 0).any():
+        raise ProtocolValidationError("Metadata jumlah sampel tidak valid")
+    if not (results.n_positive + results.n_negative == results.n_test).all():
+        raise ProtocolValidationError("n_positive + n_negative tidak sama dengan n_test")
+    if not (results.source_prior_basis == effective["source_prior_basis"]).all():
+        raise ProtocolValidationError("source_prior_basis tidak sesuai protokol")
+
+    corrected = results.prior_correction.astype(bool)
+    uncorrected = ~corrected
+    if not (results.loc[corrected, "target_prior_source"] == effective["corrected_target_prior_source"]).all():
+        raise ProtocolValidationError("Corrected rows wajib memakai oracle_simulator")
+    if not (results.loc[uncorrected, "target_prior_source"] == effective["uncorrected_target_prior_source"]).all():
+        raise ProtocolValidationError("Uncorrected rows wajib memakai target_prior_source=not_applied")
+
+    expected_primary = corrected & (results.calibration == "platt")
+    expected_naive = corrected & (results.calibration == "raw")
+    expected_reference = uncorrected
+    if not (results.loc[expected_primary, "evaluation_path"] == effective["primary_evaluation_path"]).all():
+        raise ProtocolValidationError("Platt corrected memiliki evaluation_path salah")
+    if not (results.loc[expected_naive, "evaluation_path"] == effective["excluded_evaluation_path"]).all():
+        raise ProtocolValidationError("Raw corrected harus naive_exploratory")
+    if not (results.loc[expected_reference, "evaluation_path"] == "reference_no_correction").all():
+        raise ProtocolValidationError("Uncorrected rows harus reference_no_correction")
+    if not (results.loc[expected_primary, "prior_correction_validity"] == "calibrated_confirmatory").all():
+        raise ProtocolValidationError("Validity metadata Platt corrected salah")
+    if not (results.loc[expected_naive, "prior_correction_validity"] == "naive_exploratory").all():
+        raise ProtocolValidationError("Validity metadata raw corrected salah")
+    if not (results.loc[expected_reference, "prior_correction_validity"] == "not_applied").all():
+        raise ProtocolValidationError("Validity metadata uncorrected salah")
+    if not results.loc[expected_primary | expected_reference, "confirmatory_analysis"].all():
+        raise ProtocolValidationError("Jalur valid tidak berlabel confirmatory")
+    if results.loc[expected_naive, "confirmatory_analysis"].any():
+        raise ProtocolValidationError("naive_exploratory tidak boleh berlabel confirmatory")
+
+    if ((results.evaluation_path == effective["excluded_evaluation_path"])
             & results.confirmatory_analysis).any():
         raise ProtocolValidationError("naive_exploratory tidak boleh berlabel confirmatory")
-    if not (results.target_prior_source == protocol["target_prior_source"]).all():
-        raise ProtocolValidationError("target_prior_source bukan oracle_simulator")
 
-    expected_seeds = set(protocol["seeds"])
+    expected_seeds = set(effective["seeds"])
     checks = 0
-    for strategy in protocol["imbalance_strategies"]:
-        for prevalence in protocol["primary_prevalences"]:
+    for strategy in effective["imbalance_strategies"]:
+        for prevalence in effective["primary_prevalences"]:
             condition = results[
                 (results.imbalance_strategy == strategy)
                 & np.isclose(results.target_prevalence, prevalence)
@@ -152,7 +196,7 @@ def validate_confirmatory_results(results: pd.DataFrame, protocol: dict) -> dict
             ]
             corrected = condition[
                 condition.prior_correction
-                & (condition.evaluation_path == protocol["primary_evaluation_path"])
+                & (condition.evaluation_path == effective["primary_evaluation_path"])
             ]
             reference = condition[
                 ~condition.prior_correction
@@ -167,7 +211,7 @@ def validate_confirmatory_results(results: pd.DataFrame, protocol: dict) -> dict
                     raise ProtocolValidationError(
                         f"Seed duplikat {strategy}/{prevalence}/{label}"
                     )
-                if not np.isfinite(frame[protocol["primary_metric"]]).all():
+                if not np.isfinite(frame[effective["primary_metric"]]).all():
                     raise ProtocolValidationError(
                         f"Metrik non-finite {strategy}/{prevalence}/{label}"
                     )
@@ -178,7 +222,7 @@ def validate_confirmatory_results(results: pd.DataFrame, protocol: dict) -> dict
                     f"Scenario hash berbeda dalam pasangan {strategy}/{prevalence}"
                 )
             checks += 1
-    if checks != protocol["primary_test"]["family_size"]:
+    if checks != effective["primary_test"]["family_size"]:
         raise ProtocolValidationError("Jumlah primary contrast tidak sama dengan enam")
     return {"status": "PASS", "complete_primary_contrasts": checks}
 
@@ -188,7 +232,8 @@ def main() -> None:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--runtime-config", type=Path, required=True)
     args = parser.parse_args()
-    runtime = load_json(args.runtime_config)
+    runtime_document = load_json(args.runtime_config)
+    runtime = runtime_document.get("effective_config", runtime_document)
     print(json.dumps(validate_frozen_protocol(args.manifest, runtime), indent=2))
 
 

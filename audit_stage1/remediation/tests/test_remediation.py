@@ -40,7 +40,8 @@ class RemediationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             cfg = Config(DATA, Path(tmp), (0.10,), 0.2, 0.2, (42,), 10)
             results, audit, _ = run_repetition(cfg, 42, Path(tmp))
-        self.assertTrue((results.target_prior_source == "oracle_simulator").all())
+        self.assertTrue((results.loc[results.prior_correction, "target_prior_source"] == "oracle_simulator").all())
+        self.assertTrue((results.loc[~results.prior_correction, "target_prior_source"] == "not_applied").all())
         self.assertTrue((audit.loc[audit.audit_type == "shift", "target_prior_source"] == "oracle_simulator").all())
         self.assertTrue((results.n_positive + results.n_negative == results.n_test).all())
         self.assertTrue(results.sample_id_sha256.str.len().eq(64).all())

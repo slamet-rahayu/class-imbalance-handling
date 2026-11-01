@@ -201,9 +201,10 @@ def audit_prior_correction(data: pd.DataFrame) -> pd.DataFrame:
 def confirmatory_h3_analysis(data: pd.DataFrame, protocol: dict) -> pd.DataFrame:
     """Execute the frozen six-contrast H3 analysis exactly as prespecified."""
     validate_confirmatory_results(data, protocol)
+    effective = protocol.get("effective_config", protocol)
     records = []
-    for strategy in protocol["imbalance_strategies"]:
-        for prevalence in protocol["primary_prevalences"]:
+    for strategy in effective["imbalance_strategies"]:
+        for prevalence in effective["primary_prevalences"]:
             condition = data[
                 (data.imbalance_strategy == strategy)
                 & np.isclose(data.target_prevalence, prevalence)
@@ -219,10 +220,10 @@ def confirmatory_h3_analysis(data: pd.DataFrame, protocol: dict) -> pd.DataFrame
             else:
                 result = stats.wilcoxon(
                     diff,
-                    zero_method=protocol["primary_test"]["zero_method"],
-                    alternative=protocol["primary_test"]["alternative"],
-                    method=protocol["primary_test"]["method"],
-                    correction=protocol["primary_test"]["continuity_correction"],
+                    zero_method=effective["primary_test"]["zero_method"],
+                    alternative=effective["primary_test"]["alternative"],
+                    method=effective["primary_test"]["method"],
+                    correction=effective["primary_test"]["continuity_correction"],
                 )
                 statistic, p_value = float(result.statistic), float(result.pvalue)
                 sd = float(diff.std(ddof=1))
@@ -257,10 +258,10 @@ def confirmatory_h3_analysis(data: pd.DataFrame, protocol: dict) -> pd.DataFrame
                 }
             )
     output = pd.DataFrame(records)
-    if len(output) != protocol["primary_test"]["family_size"]:
+    if len(output) != effective["primary_test"]["family_size"]:
         raise ValueError("Primary family harus tepat enam kontras")
     output["wilcoxon_p_holm"] = holm_adjust(output["wilcoxon_p_raw"])
-    output["reject_h0"] = output["wilcoxon_p_holm"] < protocol["primary_test"]["alpha"]
+    output["reject_h0"] = output["wilcoxon_p_holm"] < effective["primary_test"]["alpha"]
     return output
 
 
