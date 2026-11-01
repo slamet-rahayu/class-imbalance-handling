@@ -52,6 +52,11 @@ Target prior simulasi selalu diberi metadata `target_prior_source=oracle_simulat
 Gunakan `average_precision` sebagai nama metrik; `pr_auc` dipertahankan hanya sebagai
 alias kompatibilitas. Laporan dan smoke test tersedia di `audit_stage1/remediation/`.
 
+Protokol konfirmatori 30 seed telah dibekukan dalam
+`STATISTICAL_ANALYSIS_PLAN.md`, `confirmatory_protocol.json`, dan
+`confirmatory_protocol_freeze.json`. Mode `--confirmatory` wajib memakai freeze
+manifest dan akan menolak konfigurasi yang berbeda sebelum membuat output.
+
 Contoh konfigurasi:
 
 ```bash

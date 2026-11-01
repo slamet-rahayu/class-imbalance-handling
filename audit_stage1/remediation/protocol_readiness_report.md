@@ -2,7 +2,7 @@
 
 **Protocol:** `confirmatory-30seed-v1`  
 **Readiness decision:** **GO — protocol frozen; experiment not executed**  
-**Source snapshot:** `606a5a217c24ebe29fd35365cc1f9366316b2cbd`
+**Source snapshot:** `afebd2cce291c532bc2d0e640d7d88dcec9290d0`
 
 ## Requirements closure
 

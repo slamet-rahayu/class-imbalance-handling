@@ -38,3 +38,17 @@ Command 4 (confirmatory-filter smoke):
 Result:
   exit code 0; only confirmatory-valid paths entered the relevant comparisons.
 
+Protocol finalization validation:
+  .venv/bin/python -m unittest discover -s audit_stage1/tests -v
+  .venv/bin/python -m unittest discover -s audit_stage1/remediation/tests -v
+Result:
+  27 total tests passed (8 audit regression + 7 remediation + 12 protocol/analysis).
+
+Freeze manifest validation:
+  .venv/bin/python protocol_validation.py \
+    --manifest confirmatory_protocol_freeze.json \
+    --runtime-config confirmatory_runtime_config.json
+Result:
+  PASS; configuration hash 782e0830f8d0bfe3c7919d285973349ae0ea4f52bcdc270b7a0a690e893d7075
+  Source snapshot afebd2cce291c532bc2d0e640d7d88dcec9290d0
+
