@@ -56,6 +56,8 @@ class Config:
     calibration_size: float
     seeds: tuple[int, ...]
     n_bins: int
+    confirmatory: bool = False
+    protocol_manifest: Path | None = None
 
 
 def parse_args() -> Config:
@@ -70,12 +72,21 @@ def parse_args() -> Config:
         help="Satu atau lebih seed pengulangan, misalnya --seeds 42 43 44",
     )
     parser.add_argument("--n-bins", type=int, default=10)
+    parser.add_argument(
+        "--confirmatory", action="store_true",
+        help="Aktifkan execution gate protokol konfirmatori yang dibekukan.",
+    )
+    parser.add_argument("--protocol-manifest", type=Path)
     args = parser.parse_args()
 
     if args.test_size + args.calibration_size >= 1:
         parser.error("test-size + calibration-size harus kurang dari 1")
     if any(not 0 < p < 1 for p in args.prevalences):
         parser.error("setiap prevalence harus berada di antara 0 dan 1")
+    if args.confirmatory and args.protocol_manifest is None:
+        parser.error("--confirmatory wajib disertai --protocol-manifest")
+    if args.protocol_manifest is not None and not args.confirmatory:
+        parser.error("--protocol-manifest hanya boleh digunakan bersama --confirmatory")
     return Config(
         data=args.data,
         output=args.output,
@@ -84,6 +95,8 @@ def parse_args() -> Config:
         calibration_size=args.calibration_size,
         seeds=tuple(args.seeds),
         n_bins=args.n_bins,
+        confirmatory=args.confirmatory,
+        protocol_manifest=args.protocol_manifest,
     )
 
 
@@ -493,6 +506,13 @@ def aggregate_results(results: pd.DataFrame) -> pd.DataFrame:
 
 
 def run(cfg: Config) -> pd.DataFrame:
+    if cfg.confirmatory:
+        from protocol_validation import runtime_config_from_experiment, validate_frozen_protocol
+
+        validate_frozen_protocol(
+            cfg.protocol_manifest,
+            runtime_config_from_experiment(cfg),
+        )
     cfg.output.mkdir(parents=True, exist_ok=True)
     all_results, all_audits, all_training = [], [], []
     dataset_bytes = cfg.data.read_bytes()
