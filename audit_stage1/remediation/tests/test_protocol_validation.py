@@ -9,12 +9,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from audit_and_paired_analysis import confirmatory_h3_analysis
 from protocol_validation import (
     ProtocolValidationError,
     canonical_json_hash,
     validate_confirmatory_results,
+    validate_frozen_protocol,
     validate_runtime_config,
 )
+from run_experiment import Config, run
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -68,6 +71,12 @@ class ProtocolValidationTests(unittest.TestCase):
     def test_frozen_runtime_is_accepted(self):
         validate_runtime_config(valid_runtime(), PROTOCOL)
 
+    def test_full_freeze_manifest_is_accepted(self):
+        result = validate_frozen_protocol(
+            ROOT / "confirmatory_protocol_freeze.json", valid_runtime()
+        )
+        self.assertEqual(result["status"], "PASS")
+
     def test_every_runtime_deviation_is_rejected(self):
         mutations = {
             "seed_schedule": ("seeds", PROTOCOL["seeds"][:-1]),
@@ -83,6 +92,24 @@ class ProtocolValidationTests(unittest.TestCase):
                 runtime[key] = value
                 with self.assertRaises(ProtocolValidationError):
                     validate_runtime_config(runtime, PROTOCOL)
+
+    def test_confirmatory_run_rejects_mismatch_before_output_creation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "must_not_exist"
+            cfg = Config(
+                ROOT / "online_shoppers_intention.csv",
+                output,
+                (0.10, 0.155, 0.25),
+                0.20,
+                0.20,
+                tuple(range(42, 71)),  # seed 71 deliberately missing
+                10,
+                True,
+                ROOT / "confirmatory_protocol_freeze.json",
+            )
+            with self.assertRaises(ProtocolValidationError):
+                run(cfg)
+            self.assertFalse(output.exists())
 
     def test_complete_six_contrast_results_are_accepted(self):
         result = validate_confirmatory_results(synthetic_results(), PROTOCOL)
@@ -112,6 +139,22 @@ class ProtocolValidationTests(unittest.TestCase):
         extra["confirmatory_analysis"] = True
         with self.assertRaises(ProtocolValidationError):
             validate_confirmatory_results(pd.concat([data, extra]), PROTOCOL)
+
+    def test_primary_analysis_has_exact_six_contrasts(self):
+        result = confirmatory_h3_analysis(synthetic_results(), PROTOCOL)
+        self.assertEqual(len(result), 6)
+        self.assertEqual(set(result.metric), {"brier_score"})
+        self.assertEqual(set(result.target_prevalence), {0.10, 0.25})
+
+    def test_all_zero_primary_differences_have_p_one_and_zero_effects(self):
+        data = synthetic_results()
+        data.loc[data.prior_correction, "brier_score"] = 0.10
+        result = confirmatory_h3_analysis(data, PROTOCOL)
+        self.assertTrue((result.wilcoxon_statistic == 0).all())
+        self.assertTrue((result.wilcoxon_p_raw == 1).all())
+        self.assertTrue((result.wilcoxon_p_holm == 1).all())
+        self.assertTrue((result.cohens_dz == 0).all())
+        self.assertTrue((result.rank_biserial == 0).all())
 
 
 if __name__ == "__main__":

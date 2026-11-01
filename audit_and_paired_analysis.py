@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
+from protocol_validation import validate_confirmatory_results
 from run_experiment import EPS, prior_correct
 
 
@@ -196,6 +198,72 @@ def audit_prior_correction(data: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(checks)
 
 
+def confirmatory_h3_analysis(data: pd.DataFrame, protocol: dict) -> pd.DataFrame:
+    """Execute the frozen six-contrast H3 analysis exactly as prespecified."""
+    validate_confirmatory_results(data, protocol)
+    records = []
+    for strategy in protocol["imbalance_strategies"]:
+        for prevalence in protocol["primary_prevalences"]:
+            condition = data[
+                (data.imbalance_strategy == strategy)
+                & np.isclose(data.target_prevalence, prevalence)
+                & (data.calibration == "platt")
+            ]
+            wide = condition.pivot(index="seed", columns="prior_correction", values="brier_score")
+            reference = wide[False].to_numpy(float)
+            corrected = wide[True].to_numpy(float)
+            diff = corrected - reference
+            negative, positive, zero = int((diff < 0).sum()), int((diff > 0).sum()), int((diff == 0).sum())
+            if np.all(diff == 0):
+                statistic, p_value, dz, rank_biserial = 0.0, 1.0, 0.0, 0.0
+            else:
+                result = stats.wilcoxon(
+                    diff,
+                    zero_method=protocol["primary_test"]["zero_method"],
+                    alternative=protocol["primary_test"]["alternative"],
+                    method=protocol["primary_test"]["method"],
+                    correction=protocol["primary_test"]["continuity_correction"],
+                )
+                statistic, p_value = float(result.statistic), float(result.pvalue)
+                sd = float(diff.std(ddof=1))
+                dz = float(diff.mean() / sd) if sd > 0 else float(np.sign(diff.mean()) * np.inf)
+                nonzero = diff[diff != 0]
+                ranks = stats.rankdata(np.abs(nonzero))
+                w_plus = float(ranks[nonzero > 0].sum())
+                w_minus = float(ranks[nonzero < 0].sum())
+                rank_biserial = (w_plus - w_minus) / (w_plus + w_minus)
+            mean_diff = float(diff.mean())
+            sd_diff = float(diff.std(ddof=1))
+            half_width = stats.t.ppf(0.975, len(diff) - 1) * sd_diff / np.sqrt(len(diff))
+            records.append(
+                {
+                    "hypothesis": "H3",
+                    "metric": "brier_score",
+                    "imbalance_strategy": strategy,
+                    "target_prevalence": prevalence,
+                    "n_pairs": len(diff),
+                    "mean_uncorrected": float(reference.mean()),
+                    "mean_corrected": float(corrected.mean()),
+                    "mean_difference_corrected_minus_uncorrected": mean_diff,
+                    "descriptive_interval_95_low": mean_diff - half_width,
+                    "descriptive_interval_95_high": mean_diff + half_width,
+                    "cohens_dz": dz,
+                    "rank_biserial": rank_biserial,
+                    "n_negative": negative,
+                    "n_positive": positive,
+                    "n_zero": zero,
+                    "wilcoxon_statistic": statistic,
+                    "wilcoxon_p_raw": p_value,
+                }
+            )
+    output = pd.DataFrame(records)
+    if len(output) != protocol["primary_test"]["family_size"]:
+        raise ValueError("Primary family harus tepat enam kontras")
+    output["wilcoxon_p_holm"] = holm_adjust(output["wilcoxon_p_raw"])
+    output["reject_h0"] = output["wilcoxon_p_holm"] < protocol["primary_test"]["alpha"]
+    return output
+
+
 def main():
     args = parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -260,6 +328,12 @@ def main():
         ]
     )
     overview.to_csv(args.output / "analysis_overview.csv", index=False)
+    if remediated:
+        protocol_path = Path(__file__).resolve().parent / "confirmatory_protocol.json"
+        protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+        confirmatory_h3_analysis(data, protocol).to_csv(
+            args.output / "confirmatory_h3_primary.csv", index=False
+        )
     print(audit[["check", "passed", "detail"]].to_string(index=False))
     print("\n", overview.to_string(index=False))
 
