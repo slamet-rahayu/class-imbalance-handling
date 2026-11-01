@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Historical/generated experiment artifacts are preserved locally but not duplicated in Git.
+outputs/
+outputs_10_seeds/
+audit_results_10_seeds/
+*.zip
+
+# Reproducible smoke outputs; reports and tests remain versioned.
+audit_stage1/smoke_test_results/
+audit_stage1/remediation/smoke_seed_42/
+audit_stage1/remediation/smoke_statistics/

@@ -1,0 +1,20 @@
+{
+  "project_version": "stage1-remediation-v1",
+  "decision": "GO",
+  "critical_findings_open": 0,
+  "checks": [
+    {"id":"P1","status":"PASS","evidence":["run_experiment.py","audit_stage1/remediation/tests/test_remediation.py"],"result":"Platt+correction is primary; every raw+correction row is naive_exploratory and excluded from confirmatory analysis."},
+    {"id":"P2","status":"PASS","evidence":["target_prior_source column","STATISTICAL_ANALYSIS_PLAN.md"],"result":"All simulated target priors are explicitly oracle_simulator."},
+    {"id":"P3","status":"PASS","evidence":["prior_correct input validation","test_p3_prior_validation","test_p3_synthetic_known_label_shift"],"result":"NaN, Inf, out-of-range probabilities and invalid priors are rejected; known label-shift fixture passes."},
+    {"id":"P4","status":"PASS","evidence":["training_metadata.csv","leakage_audit.csv","all_repetitions.csv"],"result":"Class counts, ROS distribution, class weights, convergence, scenario counts and hashes are persisted."},
+    {"id":"P5","status":"PASS","evidence":["average_precision field","pr_auc compatibility alias","STATISTICAL_ANALYSIS_PLAN.md","audit_and_paired_analysis.py"],"result":"Correct metric name is primary and analysis automatically excludes exploratory paths on remediated output."},
+    {"id":"P6","status":"PASS","evidence":["DATASET_PROVENANCE.md","dataset_provenance.json","requirements-lock.txt","source_manifest.json"],"result":"Official UCI provenance, exact environment pins, project version and source hashes are recorded."},
+    {"id":"historical_immutability","status":"PASS","evidence":["smoke_comparison.json"],"result":"Historical output hash unchanged and common output values reproduce exactly."}
+  ],
+  "remaining_noncritical_items": [
+    "The original local dataset download date was not recorded and cannot be reconstructed; this is explicit in provenance.",
+    "Repeated seeds on one dataset quantify split sensitivity, not independent population sampling.",
+    "The confirmatory statistical plan must be frozen before starting 30 seeds."
+  ]
+}
+

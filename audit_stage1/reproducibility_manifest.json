@@ -1,0 +1,24 @@
+{
+  "created_at": "2026-11-01T15:50:40+07:00",
+  "repository": {"git_available": false, "commit_sha": null, "note": "Directory is not a Git worktree."},
+  "platform": {"os":"macOS 26.3.1","build":"25D2128","architecture":"arm64","python":"3.15.0"},
+  "dataset": {
+    "path":"online_shoppers_intention.csv",
+    "sha256":"b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+    "rows":12330,"columns_including_target":18,"positive":1908,"negative":10422,"prevalence":0.15474452554744525,
+    "external_source_verified":false
+  },
+  "configuration": {"prevalences":[0.10,0.155,0.25],"test_size":0.2,"calibration_size_total":0.2,"train_size_total":0.6,"seeds":[42,43,44,45,46,47,48,49,50,51],"n_bins":10},
+  "dependencies": {"numpy":"2.5.4","pandas":"3.1.0","scikit-learn":"1.9.1","imbalanced-learn":"0.14.2","scipy":"1.18.1","matplotlib":"3.11.2"},
+  "hashes": {
+    "run_experiment.py":"849fe9f061b46854f9518cac2362566c13d5ddf43c5d6f02ea0927e538eb0782",
+    "audit_and_paired_analysis.py":"ed6c523f1a5c4b58ed08af7e1283c34051b3a578ecbf37f56e5fa13c646144e1",
+    "requirements.txt":"02ffd8a9775760cd3221a5d33321344a32784c261dd01b957e04eb26470e6e07",
+    "all_repetitions.csv":"4e35c9c5c05c092a585f165743e2f22aab7fc9b06f19805514e882aebebe8652",
+    "aggregate_summary.csv":"4a7afe6629460ba3f60df499d626fd6396536f3c9b6933e769770f79d4b8ce2f",
+    "all_audits.csv":"54cbc499569b89dc3628a83bed8ae96ad96c768c3a66c9da965974e1e8d36b8f"
+  },
+  "historical_artifacts": {"result_rows":360,"aggregate_rows":36,"audit_rows":60,"seeds":10,"conditions_per_seed":36},
+  "smoke_test": {"seed":42,"rows":36,"max_numeric_delta_vs_historical":0.0,"nonnumeric_equal":true}
+}
+

@@ -1,0 +1,35 @@
+{
+  "seed": 42,
+  "status": "PASS",
+  "historical_file": "outputs_10_seeds/all_repetitions.csv",
+  "remediated_file": "audit_stage1/remediation/smoke_seed_42/all_repetitions.csv",
+  "historical_rows_for_seed": 36,
+  "remediated_rows": 36,
+  "common_columns": 14,
+  "max_numeric_absolute_difference_on_common_columns": 0.0,
+  "common_nonnumeric_fields_equal": true,
+  "new_columns": [
+    "project_version",
+    "source_prior_basis",
+    "target_prior_source",
+    "evaluation_path",
+    "prior_correction_validity",
+    "confirmatory_analysis",
+    "n_positive",
+    "n_negative",
+    "sample_id_sha256",
+    "average_precision"
+  ],
+  "evaluation_path_counts": {
+    "reference_no_correction": 18,
+    "primary_prior_correction": 9,
+    "naive_exploratory": 9
+  },
+  "confirmatory_rows": 27,
+  "exploratory_rows": 9,
+  "average_precision_alias_max_difference": 0.0,
+  "all_base_models_converged": true,
+  "all_platt_calibrators_converged": true,
+  "historical_sha256_before_and_after": "4e35c9c5c05c092a585f165743e2f22aab7fc9b06f19805514e882aebebe8652"
+}
+
