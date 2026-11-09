@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "input_sha256": {
+    "outputs_confirmatory_30_seeds/all_repetitions.csv": "029f422cdb4cfc5fc8306e8db44595935eea042e5b6136c5eaa87af7f4d1c9e5",
+    "outputs_confirmatory_30_seeds/aggregate_summary.csv": "060a9021d85cdc609d6119dcab0d7a825c7c0ae412a909f40837ddb1ba6d7bc0",
+    "outputs_confirmatory_30_seeds/training_metadata.csv": "c351bdd5238f7c4400ae71abfcb35cfbdee1744aed171db3bfdbd8303251a73f",
+    "outputs_confirmatory_30_seeds/all_audits.csv": "347cacb296148110e0b62bcedf4f799ab70902c98f3fc50f2e299cc370f8806d",
+    "outputs_confirmatory_30_seeds/execution_manifest.json": "2699a7fa4f8cc6911d4f3d5ab0b5087381b92bc9e2e03060c9f2e4360d49e450",
+    "outputs_confirmatory_30_seeds/output_hashes.json": "d65fec062df2d253eb5a9c94c14c85d0aca9899e61591f6ca0f25cd071476078",
+    "confirmatory_protocol_v2.json": "8266c9d1b531382d65b37161281da99320f69ddcedc10226040df2dd2e918e00",
+    "confirmatory_protocol_freeze_v2.json": "79ba816a846fa3003782dd4f8150ff961eeeb732010ce6630216b582f555d3eb",
+    "scientific_validation_followup/METRIC_RECOMPUTATION.csv": "eaa4a6847adf00a9993cb14afe7a95f6d63bbf2feef82977a42122f13dd22f17",
+    "scientific_validation_followup/predictions/MANIFEST.json": "f499dcdd3642472a541847024b1d8fb69df550b2a511b6b2315425d611aea1f6",
+    "scientific_validation_followup/predictions/SCHEMA.json": "7f4ca3bea3184e2ffe26c381231d6fcbdf5e95d306b7d9f2a8208e3519c5cbd1",
+    "scientific_validation_followup/FINAL_SCIENTIFIC_VALIDITY_DECISION.md": "aaf891f34f9ba48ce81e9a07295f9a70383ed64113fe3155c9901aeeefe6bc9a",
+    "PREPROCESSING_AUDIT_REPORT.md": "70ded936042d746bbb2855c6fb2db37fb164be2fccc58233898ea702e90fa5fa",
+    "notebooks/results_and_discussion.ipynb": "88292603b91ec3ac685f7c0d6c9ce90ebb744ce99a318cb2377b7089c7a87595"
+  },
+  "protocol_version": "confirmatory-30seed-v2",
+  "source_commit": "2f448140cbdf5a593d1d182f26ef955d83cc717b",
+  "metric_records": 1080,
+  "seeds": 30,
+  "configurations": 36,
+  "paired_summary_rows": 63,
+  "paired_split_metric_differences": 1890,
+  "metric_verification_rows": 3240,
+  "mismatches": 0,
+  "frozen_hashes_unchanged": 198,
+  "definitions": {
+    "SD": "sample ddof=1",
+    "delta": "comparator minus reference",
+    "relative_change_percent": "100*(mean comparator-mean reference)/mean reference"
+  },
+  "output_files": [
+    "LITERATURE_EVIDENCE.md",
+    "MANUSCRIPT_TABLES.md",
+    "METRIC_DIRECTION_AGREEMENT.csv",
+    "PAIRED_DESCRIPTIVE_VARIABILITY.csv",
+    "PAIRED_SPLIT_DIFFERENCES.csv",
+    "RESULTS_DEPTH_ANALYSIS.md",
+    "RESULTS_DISCUSSION_DRAFT.md",
+    "SUPPORTING_METRICS_SUMMARY.csv",
+    "analyze_results.py"
+  ]
+}

@@ -1,0 +1,54 @@
+Stage 1 Remediation Test Results
+Executed: 2026-11-01 (Asia/Jakarta)
+
+Command 1:
+  .venv/bin/python -m unittest discover -s audit_stage1/tests -v
+Result:
+  8 tests run; 8 passed; exit code 0
+
+Covered controls:
+  dataset schema; split isolation/size/determinism; train-only preprocessing;
+  scenario sampling; prior-correction identity/bounds/direction/input validation;
+  sklearn metric equivalence; historical output completeness.
+
+Command 2:
+  .venv/bin/python -m unittest discover -s audit_stage1/remediation/tests -v
+Result:
+  7 tests run; 7 passed; exit code 0
+
+Passed remediation tests:
+  test_p1_paths_separate_primary_and_naive
+  test_p2_oracle_metadata_and_scenario_counts
+  test_p3_prior_validation
+  test_p3_synthetic_known_label_shift
+  test_p4_training_metadata
+  test_p5_average_precision_alias
+  test_p6_provenance_and_historical_immutability
+
+Command 3 (smoke):
+  .venv/bin/python run_experiment.py \
+    --output audit_stage1/remediation/smoke_seed_42 --seeds 42
+Result:
+  36 rows generated; exit code 0; all historical common fields exactly match.
+
+Command 4 (confirmatory-filter smoke):
+  .venv/bin/python audit_and_paired_analysis.py \
+    --results audit_stage1/remediation/smoke_seed_42/all_repetitions.csv \
+    --output audit_stage1/remediation/smoke_statistics
+Result:
+  exit code 0; only confirmatory-valid paths entered the relevant comparisons.
+
+Protocol finalization validation:
+  .venv/bin/python -m unittest discover -s audit_stage1/tests -v
+  .venv/bin/python -m unittest discover -s audit_stage1/remediation/tests -v
+Result:
+  27 total tests passed (8 audit regression + 7 remediation + 12 protocol/analysis).
+
+Freeze manifest validation:
+  .venv/bin/python protocol_validation.py \
+    --manifest confirmatory_protocol_freeze.json \
+    --runtime-config confirmatory_runtime_config.json
+Result:
+  PASS; configuration hash 782e0830f8d0bfe3c7919d285973349ae0ea4f52bcdc270b7a0a690e893d7075
+  Source snapshot afebd2cce291c532bc2d0e640d7d88dcec9290d0
+

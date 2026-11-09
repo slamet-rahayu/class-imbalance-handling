@@ -1,0 +1,39 @@
+{
+  "protocol_version": "confirmatory-30seed-v2",
+  "dataset_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "effective_config": {
+    "dataset": "online_shoppers_intention.csv",
+    "target": "Revenue",
+    "seeds": [42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71],
+    "prevalences": [0.1,0.155,0.25],
+    "control_prevalence": 0.155,
+    "primary_prevalences": [0.1,0.25],
+    "test_size": 0.2,
+    "calibration_size": 0.2,
+    "n_bins": 10,
+    "imbalance_strategies": ["baseline","oversampling","class_weight"],
+    "calibration_methods": ["raw","platt"],
+    "primary_evaluation_path": "primary_prior_correction",
+    "excluded_evaluation_path": "naive_exploratory",
+    "corrected_target_prior_source": "oracle_simulator",
+    "uncorrected_target_prior_source": "not_applied",
+    "source_prior_basis": "natural_calibration_set",
+    "primary_metric": "brier_score",
+    "secondary_metrics": ["log_loss","ece"],
+    "descriptive_metrics": ["average_precision","f1"],
+    "compatibility_metric_aliases": {"pr_auc":"average_precision"},
+    "metric_settings": {"f1_threshold":0.5,"f1_zero_division":0,"ece_binning":"equal_width","ece_n_bins":10,"average_precision_implementation":"sklearn.metrics.average_precision_score"},
+    "model": {"type":"LogisticRegression","solver":"liblinear","max_iter":2000,"penalty":"l2","C":1.0,"random_state":"seed"},
+    "platt": {"type":"LogisticRegression","solver":"lbfgs","max_iter":100,"penalty":"l2","C":1.0,"random_state":0,"input":"logit_clipped_probability"},
+    "oversampling": {"type":"RandomOverSampler","scope":"training_only","sampling_strategy":"auto","random_state":"seed","position":"after_preprocessing"},
+    "class_weighting": {"value":"balanced","scope":"model_only"},
+    "preprocessing": {"numeric":"StandardScaler","categorical":"OneHotEncoder","handle_unknown":"ignore","fit_scope":"training_only"},
+    "primary_test": {"name":"paired_wilcoxon_signed_rank","alternative":"two-sided","zero_method":"pratt","method":"approx","continuity_correction":false,"multiplicity":"holm","alpha":0.05,"family_size":6},
+    "pair_keys": ["seed","imbalance_strategy","target_prevalence","sample_id_sha256"],
+    "difference_direction": "corrected_minus_uncorrected",
+    "metric_ranges": {
+      "brier_score":[0.0,1.0],"log_loss":[0.0,null],"average_precision":[0.0,1.0],"pr_auc":[0.0,1.0],"f1":[0.0,1.0],"ece":[0.0,1.0],"mean_predicted_probability":[0.0,1.0],"actual_prevalence":[0.0,1.0],"source_prevalence":[0.0,1.0]
+    }
+  }
+}
+

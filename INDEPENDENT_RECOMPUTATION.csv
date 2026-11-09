@@ -1,0 +1,31 @@
+requirement,check,status,group,metric,computed,reported,absolute_difference,detail
+1,frozen_output_hash_manifest,PASS,all,sha256,0.0,0.0,0.0,Checked 198 listed files; mismatches=0
+2,independent_split_reconstruction,PASS,30 seeds,failed_checks,0.0,0.0,0.0,Reconstructed train/cal/test indices using frozen split algorithm.
+6,independent_shift_reconstruction,PASS,90 scenarios,failed_checks,0.0,0.0,0.0,"Recomputed no-replacement class-stratified samples, counts, and sample hashes."
+5,manual_bayes_prior_correction,PASS,3 hand-calculated cases,max_absolute_error,0.0,0.0,0.0,Used Bayes prior-ratio equation independently.
+8,H3_independent_recomputation,PASS,baseline|0.1,mean_difference,-8.260906880973538e-06,-8.260906880973538e-06,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.1,wilcoxon_statistic,232.0,232.0,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.1,wilcoxon_p_raw,0.9917945644340904,0.9917945644340904,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.1,wilcoxon_p_holm,0.9917945644340904,0.9917945644340904,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.25,mean_difference,-0.01038792202880524,-0.01038792202880524,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.25,wilcoxon_statistic,0.0,0.0,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.25,wilcoxon_p_raw,1.7343976283205776e-06,1.7343976283205776e-06,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,baseline|0.25,wilcoxon_p_holm,1.0406385769923465e-05,1.0406385769923465e-05,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.1,mean_difference,0.0003027501629004043,0.0003027501629004043,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.1,wilcoxon_statistic,105.0,105.0,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.1,wilcoxon_p_raw,0.008729667753602288,0.008729667753602288,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.1,wilcoxon_p_holm,0.026189003260806865,0.026189003260806865,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.25,mean_difference,-0.011058893617992411,-0.011058893617992411,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.25,wilcoxon_statistic,0.0,0.0,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.25,wilcoxon_p_raw,1.7343976283205776e-06,1.7343976283205776e-06,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,oversampling|0.25,wilcoxon_p_holm,1.0406385769923465e-05,1.0406385769923465e-05,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.1,mean_difference,0.0003087735902168036,0.0003087735902168036,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.1,wilcoxon_statistic,112.0,112.0,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.1,wilcoxon_p_raw,0.01319416986541395,0.01319416986541395,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.1,wilcoxon_p_holm,0.0263883397308279,0.0263883397308279,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.25,mean_difference,-0.01108783008372443,-0.01108783008372443,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.25,wilcoxon_statistic,0.0,0.0,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.25,wilcoxon_p_raw,1.7343976283205776e-06,1.7343976283205776e-06,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+8,H3_independent_recomputation,PASS,class_weight|0.25,wilcoxon_p_holm,1.0406385769923465e-05,1.0406385769923465e-05,0.0,n_pairs=30; Pratt/approx/two-sided/no continuity correction
+9,secondary_h1_imbalance,PASS,135 rows,max_absolute_difference,0.0,0.0,0.0,"Recomputed pair construction, scipy auto-method Pratt Wilcoxon, and Holm within each metric family."
+9,secondary_h2_calibration,PASS,45 rows,max_absolute_difference,0.0,0.0,0.0,"Recomputed pair construction, scipy auto-method Pratt Wilcoxon, and Holm within each metric family."

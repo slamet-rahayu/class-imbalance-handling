@@ -1,0 +1,19 @@
+             comparisons  max_absolute_difference  mean_absolute_difference  mismatches
+metric                                                                                 
+brier_score         1080             5.551115e-17              1.310680e-18           0
+ece                 1080             0.000000e+00              0.000000e+00           0
+log_loss            1080             1.665335e-16              8.635068e-18           0
+
+Invariant checks:
+                             check  passed observed                                         evidence_scope
+          manifest_hashes_and_rows    True        0                                    30 prediction files
+  probabilities_finite_and_bounded    True        0                     four explicit probability branches
+                     binary_labels    True   [0, 1]                                    all prediction rows
+     ambiguous_probability_is_null    True        0      explicit raw/platt corrected columns used instead
+source_prevalence_from_calibration    True      0.0 independently reconstructed natural calibration labels
+    prior_correction_bayes_formula    True      0.0                  all 1,135,260 corrected probabilities
+identity_when_source_equals_target    True      0.0 counterfactual formula check on exported probabilities
+        prior_correction_monotonic    True        0                         within model/scenario branches
+                    unique_samples    True        0                  all 270 seed/strategy/scenario groups
+                   scenario_hashes    True        0                    all groups and original output rows
+               realized_prevalence    True        0           label means equal exported actual prevalence

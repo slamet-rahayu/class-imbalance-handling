@@ -1,0 +1,23 @@
+{
+  "specification": "CODEX_STAGE1_AUDIT_SPEC.md v1.0",
+  "executed_at": "2026-11-01T15:50:40+07:00",
+  "decision": "NO-GO",
+  "checks": [
+    {"id":"A01","status":"NEEDS_REVIEW","evidence":["online_shoppers_intention.csv","audit_stage1/tests/test_stage1_audit.py:34-38"],"notes":"Local schema/hash pass; external provenance not verifiable."},
+    {"id":"A02","status":"PASS","evidence":["run_experiment.py:91-104","run_experiment.py:275-279","audit_stage1/tests/test_stage1_audit.py:40-51"],"notes":"Disjoint deterministic 7398/2466/2466 stratified split."},
+    {"id":"A03","status":"PASS","evidence":["run_experiment.py:107-122","audit_stage1/tests/test_stage1_audit.py:53-63"],"notes":"Preprocessor fit only on training data."},
+    {"id":"A04","status":"NEEDS_REVIEW","evidence":["run_experiment.py:120-140"],"notes":"Implementation separation is correct; post-ROS counts and derived weights are not logged."},
+    {"id":"A05","status":"NEEDS_REVIEW","evidence":["run_experiment.py:131-152","run_experiment.py:316-324"],"notes":"Frozen base model and natural calibration split verified; convergence metadata absent."},
+    {"id":"A06","status":"NEEDS_REVIEW","evidence":["run_experiment.py:155-169","run_experiment.py:291-314","audit_stage1/tests/test_stage1_audit.py:65-71"],"notes":"Correct class-conditional test-only subsampling; class counts/indices not persisted."},
+    {"id":"A07","status":"FAIL","evidence":["run_experiment.py:172-193","run_experiment.py:289","run_experiment.py:326-350","audit_stage1/tests/test_stage1_audit.py:73-94"],"notes":"Formula passes; raw rebalanced source prior invalid, target prior is unlabeled oracle, input validation absent."},
+    {"id":"A08","status":"NEEDS_REVIEW","evidence":["run_experiment.py:196-222","run_experiment.py:341-350","audit_stage1/tests/test_stage1_audit.py:96-112"],"notes":"Metrics recompute correctly; average precision is labeled pr_auc and scenario metadata incomplete."},
+    {"id":"A09","status":"NEEDS_REVIEW","evidence":["requirements.txt:1-5","audit_stage1/smoke_test_results/comparison.json"],"notes":"Exact current-environment reproduction; no lockfile or Git commit SHA."},
+    {"id":"A10","status":"NEEDS_REVIEW","evidence":["audit_and_paired_analysis.py:42-113","audit_and_paired_analysis.py:197-251"],"notes":"Pairing traceable, but n=10 repeated splits are not independent populations and invalid raw-correction branch enters analysis."}
+  ],
+  "executions": [
+    {"command":".venv/bin/python -m unittest discover -s audit_stage1/tests -v","exit_code":0,"result":"8 tests passed"},
+    {"command":".venv/bin/python run_experiment.py --output audit_stage1/smoke_test_results/seed_42 --seeds 42","exit_code":0,"result":"36 rows generated"},
+    {"command":"compare smoke seed 42 with outputs_10_seeds/all_repetitions.csv","exit_code":0,"result":"max numeric delta 0.0; nonnumeric fields identical"}
+  ]
+}
+

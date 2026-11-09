@@ -1,0 +1,20 @@
+{
+  "format": "gzip-compressed CSV, one wide record per seed/strategy/scenario/sample",
+  "primary_key": [
+    "seed",
+    "strategy",
+    "target_prevalence",
+    "sample_id"
+  ],
+  "null_fields": {
+    "p_prior_corrected": "Always null because the frozen implementation has two distinct corrected branches; use explicit raw/platt corrected fields."
+  },
+  "probability_mapping": {
+    "raw + no correction": "p_raw",
+    "raw + correction (naive_exploratory)": "p_raw_prior_corrected",
+    "platt + no correction": "p_platt",
+    "platt + correction (primary_prior_correction)": "p_platt_prior_corrected"
+  },
+  "sample_id": "Zero-based row index in the frozen CSV dataset.",
+  "sample_id_sha256": "SHA-256 of sorted int64 sample IDs, matching frozen scenario audit semantics."
+}

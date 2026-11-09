@@ -1,0 +1,18 @@
+{
+  "project_version": "stage1-remediation-v1",
+  "source_snapshot_git_commit": "f333c3caf10add20e66b4c164b2b6116b7c7b40d",
+  "created_on": "2026-11-01",
+  "files": {
+    "run_experiment.py": "d4bce291c761dbf8c035507f09048d457563355a5883a81e9263bc90b8004d3e",
+    "audit_and_paired_analysis.py": "b886c8a617187897bea5f59088415919b6b53b659c10bec1a64e7b70a28ae05f",
+    "requirements-lock.txt": "40591b42e986323f913aadca2890719016f08aa47333924b309a3ece53b95f8f",
+    "DATASET_PROVENANCE.md": "5a5b5ee47786365a36063f9b26736f33bd924e123202956a9fe9e984519d5079",
+    "STATISTICAL_ANALYSIS_PLAN.md": "2d54b1951de26ece2fd0e7012b4f7837d932fe3b23fa688c28ae9ea63c26665b",
+    "online_shoppers_intention.csv": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9"
+  },
+  "preserved_historical_hashes": {
+    "outputs_10_seeds/all_repetitions.csv": "4e35c9c5c05c092a585f165743e2f22aab7fc9b06f19805514e882aebebe8652",
+    "audit_results_10_seeds/paired_prior_correction.csv": "b4be62f9b89ffc37ae076bf52db53b3e8ca4851b6a87ed46d7b8c6332e014857"
+  }
+}
+
