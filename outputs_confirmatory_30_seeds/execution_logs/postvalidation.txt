@@ -1,0 +1,38 @@
+Stage 3 post-execution validation
+
+Result validator: PASS
+Complete primary contrasts: 6
+Seeds: 30/30
+Rows: 1080/1080
+Rows per seed: 36
+Duplicate configuration keys: 0
+Evaluation paths:
+- reference_no_correction: 540
+- primary_prior_correction: 270
+- naive_exploratory: 270
+Confirmatory rows: 810
+Exploratory rows: 270
+Training metadata rows: 90
+Base models converged: 90/90
+Platt calibrators converged: 90/90
+Audit rows: 180
+Shift audit rows from test pool: 90/90
+
+Generic statistics wrapper attempt:
+- Exit: failed before H3 output
+- Exact error: KeyError: 'metric_ranges'
+- Cause: wrapper main loaded v1 protocol filename.
+- Response: frozen source was not changed. The already-frozen confirmatory_h3_analysis
+  function was invoked directly with confirmatory_protocol_v2.json.
+
+Frozen direct analysis:
+- H3 primary rows: 6
+- H3 metric: Brier score only
+- H3 prevalences: 0.10 and 0.25 only
+- Holm family size: 6
+- H1 secondary rows: 135, saved separately
+- H2 secondary rows: 45, saved separately
+- 0.155 control rows: 3, descriptive only
+
+Postvalidation decision: PASS
+

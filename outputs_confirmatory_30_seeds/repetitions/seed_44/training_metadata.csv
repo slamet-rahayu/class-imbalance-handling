@@ -1,0 +1,4 @@
+seed,strategy,train_n_before,train_negative_before,train_positive_before,train_n_after,train_negative_after,train_positive_after,train_prevalence_after,class_weight_negative,class_weight_positive,base_n_iter,base_max_iter,base_converged,base_convergence_warning,calibration_n,calibration_negative,calibration_positive,platt_n_iter,platt_max_iter,platt_converged,platt_convergence_warning
+44,baseline,7398,6254,1144,7398,6254,1144,0.15463638821303055,1.0,1.0,7,2000,True,False,2466,2084,382,6,100,True,False
+44,oversampling,7398,6254,1144,12508,6254,6254,0.5,1.0,1.0,7,2000,True,False,2466,2084,382,7,100,True,False
+44,class_weight,7398,6254,1144,7398,6254,1144,0.15463638821303055,0.591461464662616,3.2333916083916083,7,2000,True,False,2466,2084,382,8,100,True,False

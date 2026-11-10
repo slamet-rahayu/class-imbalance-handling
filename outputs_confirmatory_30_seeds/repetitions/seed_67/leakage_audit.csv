@@ -1,0 +1,4 @@
+seed,target_prevalence,n_shifted_test,unique_observations,all_from_test,sample_id_sha256,n_positive,n_negative,n_total,target_prior_source
+67,0.1,2315,2315,True,6a590446b3d1425ca06676097fe638ac779cddda7b48d7e642c7c991f2387d76,232,2083,2315,oracle_simulator
+67,0.155,2464,2464,True,8a5b4243e902806bd6328733a270aa844d9fe2087fa17e152cca75d29e27014b,382,2082,2464,oracle_simulator
+67,0.25,1528,1528,True,cfd198c9b026566e1c71ef8d8a2ed0e11327fe22cfaeb81a4d4967e29bab7816,382,1146,1528,oracle_simulator

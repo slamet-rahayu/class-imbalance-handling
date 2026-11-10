@@ -1,0 +1,17 @@
+Stage 3 confirmatory run
+Started: 2026-11-01T16:26:25+07:00
+Command:
+  .venv/bin/python run_experiment.py --confirmatory \
+    --protocol-manifest confirmatory_protocol_freeze_v2.json \
+    --output outputs_confirmatory_30_seeds \
+    --seeds 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 \
+    --prevalences 0.10 0.155 0.25 \
+    --test-size 0.20 --calibration-size 0.20 --n-bins 10
+
+Exit code: 0
+Elapsed real seconds: 18.73
+User CPU seconds: 17.24
+System CPU seconds: 1.36
+Seeds completed: 42 through 71 (30/30)
+Result rows: 1080 (36 per seed)
+

@@ -1,0 +1,25 @@
+{
+  "freeze_version": "confirmatory-30seed-v2",
+  "amendment": "PROTOCOL_AMENDMENT_v2.md",
+  "frozen_at": "2026-11-01T17:00:00+07:00",
+  "source_commit": "2f448140cbdf5a593d1d182f26ef955d83cc717b",
+  "protocol_file": "confirmatory_protocol_v2.json",
+  "statistical_plan_file": "STATISTICAL_ANALYSIS_PLAN_v2.md",
+  "dataset_file": "online_shoppers_intention.csv",
+  "configuration_sha256": "0964b183c3abba9efd10e12914c696bf961f07f25b067e5e7e1d1c427915a818",
+  "statistical_plan_sha256": "0acb2dfc059e2847b6269962509c1c0ee58b00ee4b1dcc3cc1a7db71a8a47f61",
+  "dataset_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "dependencies": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scikit-learn": "1.9.1",
+    "imbalanced-learn": "0.14.2",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2"
+  },
+  "source_files": {
+    "run_experiment.py": "859f74bc903f03c5f50b7851284b35a176a5fb54fc00d48df4a51f1705fafcec",
+    "protocol_validation.py": "bd411682098272f28858ef7543ec02187f8d6a730a75df6f38af9bc07b1d7ec6",
+    "audit_and_paired_analysis.py": "68eea9d0a34f664f67814f63acc38e27ef6d194dea7168eb921c0531a2dae312"
+  }
+}

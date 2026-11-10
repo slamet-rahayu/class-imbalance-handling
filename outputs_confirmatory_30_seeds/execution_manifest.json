@@ -1,0 +1,21 @@
+{
+  "stage": 3,
+  "status": "SUCCESS",
+  "protocol_version": "confirmatory-30seed-v2",
+  "source_commit": "2f448140cbdf5a593d1d182f26ef955d83cc717b",
+  "configuration_sha256": "0964b183c3abba9efd10e12914c696bf961f07f25b067e5e7e1d1c427915a818",
+  "statistical_plan_sha256": "0acb2dfc059e2847b6269962509c1c0ee58b00ee4b1dcc3cc1a7db71a8a47f61",
+  "dataset_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "started_at": "2026-11-01T16:26:25+07:00",
+  "elapsed_real_seconds": 18.73,
+  "seeds": {"first": 42, "last": 71, "expected": 30, "completed": 30},
+  "result_rows": 1080,
+  "conditions_per_seed": 36,
+  "preflight": {"freeze_validation": "PASS", "tests_passed": 32, "tests_failed": 0},
+  "postvalidation": {"result_validation": "PASS", "complete_primary_contrasts": 6},
+  "primary_analysis": "statistical_analysis/confirmatory_h3_primary.csv",
+  "secondary_h1": "statistical_analysis/secondary_h1_imbalance.csv",
+  "secondary_h2": "statistical_analysis/secondary_h2_calibration.csv",
+  "control_0155": "statistical_analysis/control_0155_descriptive.csv",
+  "lightgbm_executed": false
+}

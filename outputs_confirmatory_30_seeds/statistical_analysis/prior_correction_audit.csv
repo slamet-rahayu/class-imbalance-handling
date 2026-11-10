@@ -1,0 +1,15 @@
+check,source_prior,target_prior,passed,max_absolute_error,detail
+numeric_bayes_equivalence,0.155,0.1,True,3.9426523297467155e-13,Odds correction sama dengan bentuk Bayes prior-ratio.
+bounds_and_monotonicity,0.155,0.1,True,,"Output berada dalam (0,1) dan transformasi monoton."
+numeric_bayes_equivalence,0.155,0.155,True,1.1102230246251565e-16,Odds correction sama dengan bentuk Bayes prior-ratio.
+bounds_and_monotonicity,0.155,0.155,True,,"Output berada dalam (0,1) dan transformasi monoton."
+numeric_bayes_equivalence,0.155,0.25,True,4.497513472756509e-13,Odds correction sama dengan bentuk Bayes prior-ratio.
+bounds_and_monotonicity,0.155,0.25,True,,"Output berada dalam (0,1) dan transformasi monoton."
+numeric_bayes_equivalence,0.5,0.1,True,8.888888888887901e-13,Odds correction sama dengan bentuk Bayes prior-ratio.
+bounds_and_monotonicity,0.5,0.1,True,,"Output berada dalam (0,1) dan transformasi monoton."
+numeric_bayes_equivalence,0.5,0.25,True,6.666666666664444e-13,Odds correction sama dengan bentuk Bayes prior-ratio.
+bounds_and_monotonicity,0.5,0.25,True,,"Output berada dalam (0,1) dan transformasi monoton."
+empirical_pr_auc_stability,,,True,0.002873563218390829,"Perubahan maksimum PR-AUC <0.003; selisih kecil berasal dari clipping dan tie handling, bukan informasi ranking baru."
+source_prior_validity_platt,0.15471749121384157,,True,,Calibration prevalence tepat sebagai prior sumber setelah Platt scaling pada calibration set.
+source_prior_validity_raw_baseline,0.15471749121384157,,True,,Mendekati prior training karena split stratified; selisih kecil tetap mungkin.
+source_prior_validity_raw_rebalanced,0.15471749121384157,,False,,"Untuk raw oversampling/class_weight, calibration prevalence bukan effective model prior (sekitar 0.5); correction ini bersifat naive dan asumsi teoretisnya tidak terpenuhi."
